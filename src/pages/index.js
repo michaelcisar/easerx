@@ -8,12 +8,26 @@ const CATEGORY_COLORS = {
   "Inhaler": "#0F6E56",
   "ED": "#993C1D",
   "HBP": "#533AB7",
+  "Cholesterol": "#B7791F",
+  "Diabetes": "#0E7C8C",
+  "Thyroid": "#7C3F3F",
+  "Mental Health": "#6B4FB7",
+  "GI": "#9C6B1F",
+  "Pain": "#B73A6E",
+  "Blood Thinner": "#1F5F3A",
 }
 const CATEGORY_BG = {
   "GLP-1": "#E6F1FB",
   "Inhaler": "#E1F5EE",
   "ED": "#FAECE7",
   "HBP": "#EEEDFE",
+  "Cholesterol": "#FBF3E2",
+  "Diabetes": "#E2F2F4",
+  "Thyroid": "#F5E8E8",
+  "Mental Health": "#EFEAFB",
+  "GI": "#F8EFE0",
+  "Pain": "#FBE7EE",
+  "Blood Thinner": "#E2F0E8",
 }
 
 const globalStyles = `
@@ -38,6 +52,10 @@ const globalStyles = `
   .tab-btn.active { color: #185FA5 !important; border-bottom-color: #185FA5; font-weight: 600; }
   .price-card { background: white !important; border-radius: 14px; border: 1px solid #D5E5F5; padding: 20px 24px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
   .back-btn { font-family: 'Source Sans 3', sans-serif; font-size: 14px; color: #185FA5 !important; background: none !important; border: none; cursor: pointer; padding: 0; }
+  .research-summary { cursor: pointer; font-family: 'Source Sans 3', sans-serif; font-size: 14px; font-weight: 600; color: #185FA5; padding: 4px 0; user-select: none; }
+  .research-summary:hover { color: #0C447C; }
+  .research-link { color: #185FA5 !important; text-decoration: none; font-family: 'Source Sans 3', sans-serif; font-size: 13px; line-height: 1.7; }
+  .research-link:hover { text-decoration: underline; }
   select { background: white !important; color: #1A1A18 !important; }
 `
 
@@ -112,7 +130,7 @@ export default function EaseRX() {
               </div>
               <span style={{ fontFamily: "Playfair Display, serif", fontSize: 22, fontWeight: 700, color: "#1A1A18" }}>EaseRX</span>
             </div>
-            <span style={{ fontFamily: "Source Sans 3, sans-serif", fontSize: 13, color: "#6A8CAD" }}>Prices last verified May 2025 · Not medical advice</span>
+            <span style={{ fontFamily: "Source Sans 3, sans-serif", fontSize: 13, color: "#6A8CAD" }}>Prices last verified April 2026 · Not medical advice</span>
           </header>
 
           <section style={{ maxWidth: 720, margin: "0 auto", padding: "80px 24px 48px" }}>
@@ -132,7 +150,7 @@ export default function EaseRX() {
                   <input
                     ref={inputRef}
                     className="rx-input"
-                    placeholder="Search medication (e.g. Ozempic, Advair, Viagra...)"
+                    placeholder="Search medication (e.g. Ozempic, Wegovy, Advair, Metformin...)"
                     value={query}
                     onChange={e => { setQuery(e.target.value); setSelectedDrug(null) }}
                     onKeyDown={e => { if (e.key === "Enter" && selectedDrug) handleSearch() }}
@@ -256,6 +274,36 @@ export default function EaseRX() {
                 </div>
               </div>
             </div>
+
+            {drug.research && (
+              <div style={{ background: "white", border: "1px solid #D5E5F5", borderRadius: 14, padding: "20px 24px", marginBottom: 28 }}>
+                <details>
+                  <summary className="research-summary">About this medication & research sources ↓</summary>
+                  <div style={{ paddingTop: 14 }}>
+                    <p style={{ fontFamily: "Source Sans 3, sans-serif", fontSize: 14, color: "#3A5A7A", lineHeight: 1.7, marginBottom: 14 }}>
+                      {drug.research.summary}
+                    </p>
+                    {drug.research.links && drug.research.links.length > 0 && (
+                      <div>
+                        <div style={{ fontFamily: "Source Sans 3, sans-serif", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", color: "#6A8CAD", marginBottom: 8 }}>References</div>
+                        <ul style={{ paddingLeft: 18, listStyle: "disc" }}>
+                          {drug.research.links.map(link => (
+                            <li key={link.url} style={{ marginBottom: 4 }}>
+                              <a href={link.url} target="_blank" rel="noopener noreferrer" className="research-link">
+                                {link.label} ↗
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    <p style={{ fontFamily: "Source Sans 3, sans-serif", fontSize: 11, color: "#9AAEC0", marginTop: 14, lineHeight: 1.6 }}>
+                      Educational summary only. EaseRX is not affiliated with NIH, FDA, or any cited source. Always consult your physician before changing medications.
+                    </p>
+                  </div>
+                </details>
+              </div>
+            )}
 
             <div style={{ borderBottom: "1px solid #D5E5F5", marginBottom: 28, display: "flex" }}>
               <button className={`tab-btn${resultTab === "cash" ? " active" : ""}`} onClick={() => setResultTab("cash")}>Cash / No Insurance</button>
