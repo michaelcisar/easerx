@@ -30,6 +30,12 @@ const CATEGORY_BG = {
   "Blood Thinner": "#E2F0E8",
 }
 
+const parsePrice = (str) => {
+  if (!str) return null
+  const m = String(str).replace(/,/g, "").match(/\$\s*(\d+(?:\.\d+)?)/)
+  return m ? parseFloat(m[1]) : null
+}
+
 const globalStyles = `
   :root { color-scheme: light only; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -230,6 +236,24 @@ export default function EaseRX() {
     const cashSources = SOURCES_CONFIG.filter(s => s.type === "cash")
     const intlSources = SOURCES_CONFIG.filter(s => s.type === "international")
 
+    const pricedSources = [...cashSources, ...intlSources]
+      .map(src => {
+        const info = drug.sources[src.key]
+        if (!info) return null
+        const value = parsePrice(info.price)
+        if (value === null) return null
+        return { key: src.key, label: src.label, type: src.type, value }
+      })
+      .filter(Boolean)
+
+    const lowest = pricedSources.length > 0
+      ? pricedSources.reduce((min, s) => (s.value < min.value ? s : min), pricedSources[0])
+      : null
+    const cashPriced = pricedSources.filter(s => s.type === "cash")
+    const highestUS = cashPriced.length > 0
+      ? cashPriced.reduce((max, s) => (s.value > max.value ? s : max), cashPriced[0])
+      : null
+
     return (
       <>
         <Head>
@@ -312,6 +336,13 @@ export default function EaseRX() {
 
             {resultTab === "cash" && (
               <div>
+                {pricedSources.length >= 2 && highestUS && lowest && highestUS.value > lowest.value && (
+                  <div style={{ background: "white", border: "1px solid #0F6E56", borderRadius: 14, padding: "16px 24px", marginBottom: 24 }}>
+                    <span style={{ fontFamily: "Source Sans 3, sans-serif", fontSize: 15, color: "#1A1A18" }}>
+                      Lowest price found: <span style={{ fontFamily: "Playfair Display, serif", fontWeight: 700, color: "#0F6E56" }}>${Math.round(lowest.value)}</span> at {lowest.label} — save <span style={{ fontFamily: "Playfair Display, serif", fontWeight: 700, color: "#0F6E56" }}>${Math.round(highestUS.value - lowest.value)}</span> ({Math.round((1 - lowest.value / highestUS.value) * 100)}%) vs the highest US cash price.
+                    </span>
+                  </div>
+                )}
                 <div style={{ marginBottom: 32 }}>
                   <h2 style={{ fontFamily: "Playfair Display, serif", fontSize: 20, fontWeight: 600, color: "#1A1A18", marginBottom: 4 }}>🇺🇸 US Cash-Pay Sources</h2>
                   <p style={{ fontFamily: "Source Sans 3, sans-serif", fontSize: 13, color: "#6A8CAD", marginBottom: 16 }}>All legal, licensed US pharmacies and discount programs</p>
@@ -324,7 +355,12 @@ export default function EaseRX() {
                         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                           <span style={{ fontSize: 22 }}>{src.flag}</span>
                           <div>
-                            <div style={{ fontFamily: "Source Sans 3, sans-serif", fontWeight: 600, color: "#1A1A18", fontSize: 15 }}>{src.label}</div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <div style={{ fontFamily: "Source Sans 3, sans-serif", fontWeight: 600, color: "#1A1A18", fontSize: 15 }}>{src.label}</div>
+                              {lowest && lowest.key === src.key && (
+                                <span style={{ background: "#E1F5EE", color: "#0F6E56", fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, fontFamily: "Source Sans 3, sans-serif" }}>Lowest price</span>
+                              )}
+                            </div>
                             {src.key === "goodrx" && zip && <div style={{ fontFamily: "Source Sans 3, sans-serif", fontSize: 12, color: "#6A8CAD" }}>Localized for ZIP {zip}</div>}
                           </div>
                         </div>
@@ -349,7 +385,12 @@ export default function EaseRX() {
                         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                           <span style={{ fontSize: 22 }}>{src.flag}</span>
                           <div>
-                            <div style={{ fontFamily: "Source Sans 3, sans-serif", fontWeight: 600, color: "#1A1A18", fontSize: 15 }}>{src.label}</div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <div style={{ fontFamily: "Source Sans 3, sans-serif", fontWeight: 600, color: "#1A1A18", fontSize: 15 }}>{src.label}</div>
+                              {lowest && lowest.key === src.key && (
+                                <span style={{ background: "#E1F5EE", color: "#0F6E56", fontSize: 11, fontWeight: 600, padding: "3px 10px", borderRadius: 20, fontFamily: "Source Sans 3, sans-serif" }}>Lowest price</span>
+                              )}
+                            </div>
                             <div style={{ fontFamily: "Source Sans 3, sans-serif", fontSize: 12, color: "#0F6E56", fontWeight: 500 }}>International / Canadian</div>
                           </div>
                         </div>
