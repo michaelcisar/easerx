@@ -130,7 +130,7 @@ export default function EaseRX() {
               </div>
               <span style={{ fontFamily: "Playfair Display, serif", fontSize: 22, fontWeight: 700, color: "#1A1A18" }}>EaseRX</span>
             </div>
-            <span style={{ fontFamily: "Source Sans 3, sans-serif", fontSize: 13, color: "#6A8CAD" }}>Prices last verified April 2026 · Not medical advice</span>
+            <span style={{ fontFamily: "Source Sans 3, sans-serif", fontSize: 13, color: "#6A8CAD" }}>Prices last verified July 2026 · Not medical advice</span>
           </header>
 
           <section style={{ maxWidth: 720, margin: "0 auto", padding: "80px 24px 48px" }}>
