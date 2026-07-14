@@ -1,6 +1,7 @@
 "use client"
 import { useState, useRef, useEffect } from "react"
 import Head from "next/head"
+import { useRouter } from "next/router"
 import { DRUGS, CATEGORIES, SOURCES_CONFIG } from "../data/drugs"
 
 const CATEGORY_COLORS = {
@@ -76,8 +77,23 @@ export default function EaseRX() {
   const [activeCategory, setActiveCategory] = useState("All")
   const [resultTab, setResultTab] = useState("cash")
   const inputRef = useRef(null)
+  const router = useRouter()
 
   const drugNames = Object.keys(DRUGS)
+
+  useEffect(() => {
+    if (!router.isReady) return
+    const d = router.query.drug
+    if (typeof d === "string" && DRUGS[d]) {
+      setSelectedDrug(d)
+      setQuery(d)
+      setSelectedStrength(s => (DRUGS[d].strengths.includes(s) ? s : DRUGS[d].strengths[0]))
+      setSelectedQty(q => (DRUGS[d].quantities.includes(q) ? q : DRUGS[d].quantities[0]))
+      setPage("results")
+    } else {
+      setPage("home")
+    }
+  }, [router.isReady, router.query.drug])
 
   useEffect(() => {
     if (query.length > 1) {
@@ -99,7 +115,7 @@ export default function EaseRX() {
     setSelectedQty(DRUGS[name].quantities[0])
   }
 
-  const handleSearch = () => { if (selectedDrug) setPage("results") }
+  const handleSearch = () => { if (selectedDrug) router.push({ pathname: "/", query: { drug: selectedDrug } }, undefined, { shallow: true }) }
 
   const filteredDrugs = activeCategory === "All"
     ? drugNames
@@ -208,7 +224,7 @@ export default function EaseRX() {
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 12 }}>
               {filteredDrugs.map(name => (
-                <div key={name} className="drug-card" onClick={() => { handleSelect(name); setPage("results") }}>
+                <div key={name} className="drug-card" onClick={() => { handleSelect(name); router.push({ pathname: "/", query: { drug: name } }, undefined, { shallow: true }) }}>
                   <div>
                     <div style={{ fontFamily: "Source Sans 3, sans-serif", fontWeight: 600, color: "#1A1A18", fontSize: 15 }}>{name}</div>
                     <div style={{ fontFamily: "Source Sans 3, sans-serif", fontSize: 13, color: "#6A8CAD", marginTop: 2 }}>{DRUGS[name].generic}</div>
@@ -269,7 +285,7 @@ export default function EaseRX() {
         <div style={pageStyle}>
           <header style={headerStyle}>
             <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-              <button className="back-btn" onClick={() => setPage("home")}>← Back</button>
+              <button className="back-btn" onClick={() => router.push({ pathname: "/" }, undefined, { shallow: true })}>← Back</button>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                 <div style={{ width: 32, height: 32, background: "#185FA5", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <span style={{ color: "white", fontFamily: "Playfair Display, serif", fontWeight: 700, fontSize: 16 }}>Rx</span>
